@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AuthPanel } from "./auth/AuthPanel";
 import { Dashboard } from "./workspace/Dashboard";
+import { CreationCenter } from "./workspace/CreationCenter";
 import { ArrowRight, Box, ChevronRight, Layers3, Sparkles, WandSparkles } from "lucide-react";
 import { supabase } from "./lib/supabase";
 
@@ -27,7 +28,8 @@ export default function App() {
   },[]);
 
   if (checking) return <main className="app-shell auth-loading"><div className="eyebrow"><Sparkles size={15}/> LOADING WORKSPACE</div></main>;
-  if (session?.user) return <Dashboard user={session.user} onSignOut={async()=>{if(supabase) await supabase.auth.signOut();}} />;
+  const [workspaceView,setWorkspaceView]=useState<"dashboard"|"create">("dashboard");
+  if (session?.user) return workspaceView==="create" ? <CreationCenter onBack={()=>setWorkspaceView("dashboard")} /> : <Dashboard user={session.user} onSignOut={async()=>{if(supabase) await supabase.auth.signOut();}} onCreate={()=>setWorkspaceView("create")} />;
 
   return <main className="app-shell">
     <nav className="nav">
