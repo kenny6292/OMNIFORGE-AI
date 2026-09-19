@@ -5,6 +5,7 @@ import { CreationCenter } from "./workspace/CreationCenter";
 import { AssetLibrary } from "./workspace/AssetLibrary";
 import { Studio } from "./workspace/Studio";
 import { MaterialsCenter } from "./workspace/MaterialsCenter";
+import { CharacterLab } from "./workspace/CharacterLab";
 import { ArrowRight, Box, ChevronRight, Layers3, Sparkles, WandSparkles } from "lucide-react";
 import { supabase } from "./lib/supabase";
 
@@ -22,6 +23,7 @@ export default function App() {
   const [authOpen,setAuthOpen]=useState(false);
   const [session,setSession]=useState<any>(null);
   const [checking,setChecking]=useState(true);
+  const [workspaceView,setWorkspaceView]=useState<"dashboard"|"create"|"studio"|"assets"|"materials"|"characters">("dashboard");
 
   useEffect(()=>{
     if (!supabase) { setChecking(false); return; }
@@ -31,13 +33,13 @@ export default function App() {
   },[]);
 
   if (checking) return <main className="app-shell auth-loading"><div className="eyebrow"><Sparkles size={15}/> LOADING WORKSPACE</div></main>;
-  const [workspaceView,setWorkspaceView]=useState<"dashboard"|"create"|"studio"|"assets"|"materials">("dashboard");
   if (session?.user) {
  if (workspaceView==="create") return <CreationCenter onBack={()=>setWorkspaceView("dashboard")} />;
  if (workspaceView==="studio") return <Studio onBack={()=>setWorkspaceView("dashboard")} />;
  if (workspaceView==="assets") return <AssetLibrary onOpenStudio={()=>setWorkspaceView("studio")} />;
  if (workspaceView==="materials") return <MaterialsCenter onBack={()=>setWorkspaceView("dashboard")} />;
- return <Dashboard user={session.user} onSignOut={async()=>{if(supabase) await supabase.auth.signOut();}} onCreate={()=>setWorkspaceView("create")} onStudio={()=>setWorkspaceView("studio")} onAssets={()=>setWorkspaceView("assets")} onMaterials={()=>setWorkspaceView("materials")} />;
+ if (workspaceView==="characters") return <CharacterLab onBack={()=>setWorkspaceView("dashboard")} />;
+ return <Dashboard user={session.user} onSignOut={async()=>{if(supabase) await supabase.auth.signOut();}} onCreate={()=>setWorkspaceView("create")} onStudio={()=>setWorkspaceView("studio")} onAssets={()=>setWorkspaceView("assets")} onMaterials={()=>setWorkspaceView("materials")} onCharacters={()=>setWorkspaceView("characters")} />;
 }
 
   return <main className="app-shell">
