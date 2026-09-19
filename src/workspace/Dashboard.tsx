@@ -5,7 +5,7 @@ import { createProject, listProjects } from "../lib/omniforge-db";
 
 type Project = { id:string; name:string; description:string; project_type:string; status:string; updated_at:string };
 
-export function Dashboard({ user, onSignOut, onCreate, onStudio, onAssets, onMaterials, onCharacters, onDeveloper }: { user:any; onSignOut:()=>Promise<void>; onCreate:()=>void; onStudio:()=>void; onAssets:()=>void; onMaterials:()=>void; onCharacters:()=>void }) {
+export function Dashboard({ user, onSignOut, onCreate, onStudio, onAssets, onMaterials, onCharacters, onDeveloper }: { user:any; onSignOut:()=>Promise<void>; onCreate:()=>void; onStudio:()=>void; onAssets:()=>void; onMaterials:()=>void; onCharacters:()=>void; onDeveloper:()=>void }) {
   const [projects,setProjects]=useState<Project[]>([]);
   const [assetCount,setAssetCount]=useState(0);
   const [generationCount,setGenerationCount]=useState(0);
