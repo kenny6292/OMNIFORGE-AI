@@ -5,7 +5,7 @@ import { createProject, listProjects } from "../lib/omniforge-db";
 
 type Project = { id:string; name:string; description:string; project_type:string; status:string; updated_at:string };
 
-export function Dashboard({ user, onSignOut }: { user:any; onSignOut:()=>Promise<void> }) {
+export function Dashboard({ user, onSignOut, onCreate }: { user:any; onSignOut:()=>Promise<void>; onCreate:()=>void }) {
   const [projects,setProjects]=useState<Project[]>([]);
   const [assetCount,setAssetCount]=useState(0);
   const [generationCount,setGenerationCount]=useState(0);
@@ -69,7 +69,7 @@ export function Dashboard({ user, onSignOut }: { user:any; onSignOut:()=>Promise
       </div>
     </aside>
     <section className="workspace-main">
-      <header className="workspace-header"><div><div className="eyebrow">CREATOR WORKSPACE</div><h1>Welcome back.</h1><p>Your OMNIFORGE projects, assets and generation history in one place.</p></div><button className="primary" onClick={()=>setShowCreate(true)}><Plus size={17}/>New Project</button></header>
+      <header className="workspace-header"><div><div className="eyebrow">CREATOR WORKSPACE</div><h1>Welcome back.</h1><p>Your OMNIFORGE projects, assets and generation history in one place.</p></div><button className="primary" onClick={onCreate}><WandSparkles size={17}/>Create with AI</button><button className="primary" onClick={()=>setShowCreate(true)}><Plus size={17}/>New Project</button></header>
       {error && <div className="workspace-error">{error}</div>}
       <div className="stats-grid">
         <div className="stat-card"><FolderKanban size={18}/><span>Projects</span><strong>{loading?"—":projects.length}</strong></div>
