@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AuthPanel } from "./auth/AuthPanel";
 import { ArrowRight, Box, Check, ChevronRight, Layers3, Sparkles, WandSparkles } from "lucide-react";
 
 type Section = "home" | "features" | "studio" | "showcase";
@@ -16,7 +17,7 @@ function scrollTo(id: Section) {
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(false);\n  const [authOpen, setAuthOpen] = useState(false);
 
   return <main className="app-shell">
     <nav className="nav">
@@ -28,7 +29,7 @@ export default function App() {
         <button onClick={() => scrollTo("studio")}>Studio</button>
         <button onClick={() => scrollTo("showcase")}>Showcase</button>
       </div>
-      <button className="nav-cta" onClick={() => {setStarted(true); scrollTo("studio")}}>Start Creating <ArrowRight size={16}/></button>
+      <button className="nav-cta" onClick={() => setAuthOpen(true)}>Start Creating <ArrowRight size={16}/></button>
       <button className="mobile-menu" onClick={() => setMenuOpen(v=>!v)} aria-label="Toggle navigation">☰</button>
       {menuOpen && <div className="mobile-links">
         <button onClick={() => {setMenuOpen(false); scrollTo("features")}}>Features</button>
@@ -42,7 +43,7 @@ export default function App() {
       <h1>Forge Anything.<br/><em>Build Worlds.</em></h1>
       <p>Turn ideas into 3D reality with an AI-powered creation engine for assets, scenes, materials, animation and digital worlds.</p>
       <div className="hero-actions">
-        <button className="primary" onClick={() => {setStarted(true); scrollTo("studio")}}>Start Creating <ArrowRight size={17}/></button>
+        <button className="primary" onClick={() => setAuthOpen(true)}>Start Creating <ArrowRight size={17}/></button>
         <button className="secondary" onClick={() => scrollTo("showcase")}>Explore Showcase</button>
       </div>
       {started && <div className="launch-note"><Check size={15}/> Studio workspace initialized. Generation engine integration comes next.</div>}
@@ -62,6 +63,6 @@ export default function App() {
 
     <section id="showcase" className="section showcase"><div className="showcase-card"><div><div className="eyebrow">SHOWCASE</div><h2>Built for ideas that become real.</h2><p>Public showcases will let creators publish assets, scenes and complete worlds from OMNIFORGE.</p></div><button className="secondary" onClick={()=>setStarted(true)}>Enter Studio <ArrowRight size={16}/></button></div></section>
 
-    <footer><span>OMNIFORGE AI</span><span>Foundation v0.2 · Building the creation engine</span></footer>
+    <footer><span>OMNIFORGE AI</span><span>Foundation v0.3 · Auth-ready</span></footer>\n    {authOpen && <AuthPanel onClose={() => setAuthOpen(false)} />}
   </main>;
 }
