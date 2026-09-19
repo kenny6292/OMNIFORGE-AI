@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { AuthPanel } from "./auth/AuthPanel";
 import { Dashboard } from "./workspace/Dashboard";
 import { CreationCenter } from "./workspace/CreationCenter";
+import { AssetLibrary } from "./workspace/AssetLibrary";
+import { Studio } from "./workspace/Studio";
 import { MaterialsCenter } from "./workspace/MaterialsCenter";
 import { ArrowRight, Box, ChevronRight, Layers3, Sparkles, WandSparkles } from "lucide-react";
 import { supabase } from "./lib/supabase";
