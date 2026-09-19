@@ -5,7 +5,7 @@ import { createProject, listProjects } from "../lib/omniforge-db";
 
 type Project = { id:string; name:string; description:string; project_type:string; status:string; updated_at:string };
 
-export function Dashboard({ user, onSignOut, onCreate }: { user:any; onSignOut:()=>Promise<void>; onCreate:()=>void }) {
+export function Dashboard({ user, onSignOut, onCreate, onStudio }: { user:any; onSignOut:()=>Promise<void>; onCreate:()=>void; onStudio:()=>void }) {
   const [projects,setProjects]=useState<Project[]>([]);
   const [assetCount,setAssetCount]=useState(0);
   const [generationCount,setGenerationCount]=useState(0);
@@ -60,7 +60,7 @@ export function Dashboard({ user, onSignOut, onCreate }: { user:any; onSignOut:(
         <button><FolderKanban size={16}/>Projects</button>
         <button><Box size={16}/>Assets</button>
         <button><WandSparkles size={16}/>Generations</button>
-        <button><Layers3 size={16}/>Studio</button>
+        <button onClick={onStudio}><Layers3 size={16}/>Studio</button>
       </div>
       <div className="workspace-user">
         <div className="user-avatar">{(user.email?.[0] ?? "U").toUpperCase()}</div>
