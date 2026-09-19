@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AuthPanel } from "./auth/AuthPanel";
 import { Dashboard } from "./workspace/Dashboard";
 import { CreationCenter } from "./workspace/CreationCenter";
+import { MaterialsCenter } from "./workspace/MaterialsCenter";
 import { ArrowRight, Box, ChevronRight, Layers3, Sparkles, WandSparkles } from "lucide-react";
 import { supabase } from "./lib/supabase";
 
@@ -28,8 +29,14 @@ export default function App() {
   },[]);
 
   if (checking) return <main className="app-shell auth-loading"><div className="eyebrow"><Sparkles size={15}/> LOADING WORKSPACE</div></main>;
-  const [workspaceView,setWorkspaceView]=useState<"dashboard"|"create">("dashboard");
-  if (session?.user) return workspaceView==="create" ? <CreationCenter onBack={()=>setWorkspaceView("dashboard")} /> : <Dashboard user={session.user} onSignOut={async()=>{if(supabase) await supabase.auth.signOut();}} onCreate={()=>setWorkspaceView("create")} onStudio={()=>setWorkspaceView("studio")} onAssets={()=>setWorkspaceView("assets")} />;
+  const [workspaceView,setWorkspaceView]=useState<"dashboard"|"create"|"studio"|"assets"|"materials">("dashboard");
+  if (session?.user) {
+ if (workspaceView==="create") return <CreationCenter onBack={()=>setWorkspaceView("dashboard")} />;
+ if (workspaceView==="studio") return <Studio onBack={()=>setWorkspaceView("dashboard")} />;
+ if (workspaceView==="assets") return <AssetLibrary onOpenStudio={()=>setWorkspaceView("studio")} />;
+ if (workspaceView==="materials") return <MaterialsCenter onBack={()=>setWorkspaceView("dashboard")} />;
+ return <Dashboard user={session.user} onSignOut={async()=>{if(supabase) await supabase.auth.signOut();}} onCreate={()=>setWorkspaceView("create")} onStudio={()=>setWorkspaceView("studio")} onAssets={()=>setWorkspaceView("assets")} onMaterials={()=>setWorkspaceView("materials")} />;
+}
 
   return <main className="app-shell">
     <nav className="nav">
