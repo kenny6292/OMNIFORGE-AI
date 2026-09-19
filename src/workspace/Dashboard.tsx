@@ -5,7 +5,7 @@ import { createProject, listProjects } from "../lib/omniforge-db";
 
 type Project = { id:string; name:string; description:string; project_type:string; status:string; updated_at:string };
 
-export function Dashboard({ user, onSignOut, onCreate, onStudio }: { user:any; onSignOut:()=>Promise<void>; onCreate:()=>void; onStudio:()=>void }) {
+export function Dashboard({ user, onSignOut, onCreate, onStudio, onAssets }: { user:any; onSignOut:()=>Promise<void>; onCreate:()=>void; onStudio:()=>void; onAssets:()=>void }) {
   const [projects,setProjects]=useState<Project[]>([]);
   const [assetCount,setAssetCount]=useState(0);
   const [generationCount,setGenerationCount]=useState(0);
@@ -58,7 +58,7 @@ export function Dashboard({ user, onSignOut, onCreate, onStudio }: { user:any; o
       <div className="workspace-nav">
         <button className="active"><Sparkles size={16}/>Overview</button>
         <button><FolderKanban size={16}/>Projects</button>
-        <button><Box size={16}/>Assets</button>
+        <button onClick={onAssets}><Box size={16}/>Assets</button>
         <button><WandSparkles size={16}/>Generations</button>
         <button onClick={onStudio}><Layers3 size={16}/>Studio</button>
       </div>
