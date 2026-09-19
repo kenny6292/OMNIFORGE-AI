@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Box, ChevronDown, Loader2, Sparkles, WandSparkles } from "lucide-react";
-import { createGeneration, listProjects } from "../lib/omniforge-db";
+import { startGeneration, listProjects } from "../lib/omniforge-db";
 
 const types=["3D Model","Character","Environment","Prop","Vehicle","Building","Material","Texture","Animation","Concept"];
 const formats=["GLB","GLTF","OBJ"];
@@ -27,7 +27,7 @@ export function CreationCenter({ onBack }: { onBack:()=>void }) {
     if (!prompt.trim()) return;
     setCreating(true); setMessage("");
     try {
-      await createGeneration({
+      await startGeneration({
         prompt:prompt.trim(), generationType:type, projectId:projectId || undefined,
         parameters:{style,quality,polycount,textureResolution:texture,format,variations:Number(variations)}
       });
