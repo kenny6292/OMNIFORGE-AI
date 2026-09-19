@@ -6,6 +6,7 @@ import { AssetLibrary } from "./workspace/AssetLibrary";
 import { Studio } from "./workspace/Studio";
 import { MaterialsCenter } from "./workspace/MaterialsCenter";
 import { CharacterLab } from "./workspace/CharacterLab";
+import { DeveloperPlatform } from "./workspace/DeveloperPlatform";
 import { ArrowRight, Box, ChevronRight, Layers3, Sparkles, WandSparkles } from "lucide-react";
 import { supabase } from "./lib/supabase";
 
@@ -23,7 +24,7 @@ export default function App() {
   const [authOpen,setAuthOpen]=useState(false);
   const [session,setSession]=useState<any>(null);
   const [checking,setChecking]=useState(true);
-  const [workspaceView,setWorkspaceView]=useState<"dashboard"|"create"|"studio"|"assets"|"materials"|"characters">("dashboard");
+  const [workspaceView,setWorkspaceView]=useState<"dashboard"|"create"|"studio"|"assets"|"materials"|"characters"|"developer">("dashboard");
 
   useEffect(()=>{
     if (!supabase) { setChecking(false); return; }
@@ -39,7 +40,8 @@ export default function App() {
  if (workspaceView==="assets") return <AssetLibrary onOpenStudio={()=>setWorkspaceView("studio")} />;
  if (workspaceView==="materials") return <MaterialsCenter onBack={()=>setWorkspaceView("dashboard")} />;
  if (workspaceView==="characters") return <CharacterLab onBack={()=>setWorkspaceView("dashboard")} />;
- return <Dashboard user={session.user} onSignOut={async()=>{if(supabase) await supabase.auth.signOut();}} onCreate={()=>setWorkspaceView("create")} onStudio={()=>setWorkspaceView("studio")} onAssets={()=>setWorkspaceView("assets")} onMaterials={()=>setWorkspaceView("materials")} onCharacters={()=>setWorkspaceView("characters")} />;
+ if (workspaceView==="developer") return <DeveloperPlatform />;
+ return <Dashboard user={session.user} onSignOut={async()=>{if(supabase) await supabase.auth.signOut();}} onCreate={()=>setWorkspaceView("create")} onStudio={()=>setWorkspaceView("studio")} onAssets={()=>setWorkspaceView("assets")} onMaterials={()=>setWorkspaceView("materials")} onCharacters={()=>setWorkspaceView("characters")} onDeveloper={()=>setWorkspaceView("developer")} />;
 }
 
   return <main className="app-shell">
