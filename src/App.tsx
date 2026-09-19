@@ -29,7 +29,7 @@ export default function App() {
 
   if (checking) return <main className="app-shell auth-loading"><div className="eyebrow"><Sparkles size={15}/> LOADING WORKSPACE</div></main>;
   const [workspaceView,setWorkspaceView]=useState<"dashboard"|"create">("dashboard");
-  if (session?.user) return workspaceView==="create" ? <CreationCenter onBack={()=>setWorkspaceView("dashboard")} /> : <Dashboard user={session.user} onSignOut={async()=>{if(supabase) await supabase.auth.signOut();}} onCreate={()=>setWorkspaceView("create")} />;
+  if (session?.user) return workspaceView==="create" ? <CreationCenter onBack={()=>setWorkspaceView("dashboard")} /> : <Dashboard user={session.user} onSignOut={async()=>{if(supabase) await supabase.auth.signOut();}} onCreate={()=>setWorkspaceView("create")} onStudio={()=>setWorkspaceView("studio")} onAssets={()=>setWorkspaceView("assets")} />;
 
   return <main className="app-shell">
     <nav className="nav">
