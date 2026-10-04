@@ -25,6 +25,7 @@ export default function App() {
   const [session,setSession]=useState<any>(null);
   const [checking,setChecking]=useState(true);
   const [workspaceView,setWorkspaceView]=useState<"dashboard"|"create"|"studio"|"assets"|"materials"|"characters"|"developer">("dashboard");
+  const [studioAssetUrl,setStudioAssetUrl]=useState("");
 
   useEffect(()=>{
     if (!supabase) { setChecking(false); return; }
@@ -36,8 +37,8 @@ export default function App() {
   if (checking) return <main className="app-shell auth-loading"><div className="eyebrow"><Sparkles size={15}/> LOADING WORKSPACE</div></main>;
   if (session?.user) {
  if (workspaceView==="create") return <CreationCenter onBack={()=>setWorkspaceView("dashboard")} />;
- if (workspaceView==="studio") return <Studio onBack={()=>setWorkspaceView("dashboard")} />;
- if (workspaceView==="assets") return <AssetLibrary onOpenStudio={()=>setWorkspaceView("studio")} />;
+ if (workspaceView==="studio") return <Studio initialAssetUrl={studioAssetUrl} onBack={()=>setWorkspaceView("dashboard")} />;
+ if (workspaceView==="assets") return <AssetLibrary onOpenStudio={(url)=>{setStudioAssetUrl(url||"");setWorkspaceView("studio");}} />;
  if (workspaceView==="materials") return <MaterialsCenter onBack={()=>setWorkspaceView("dashboard")} />;
  if (workspaceView==="characters") return <CharacterLab onBack={()=>setWorkspaceView("dashboard")} />;
  if (workspaceView==="developer") return <DeveloperPlatform />;
