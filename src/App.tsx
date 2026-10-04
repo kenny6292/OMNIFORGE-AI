@@ -7,6 +7,7 @@ import { Studio } from "./workspace/Studio";
 import { MaterialsCenter } from "./workspace/MaterialsCenter";
 import { CharacterLab } from "./workspace/CharacterLab";
 import { DeveloperPlatform } from "./workspace/DeveloperPlatform";
+import { WorkspaceList } from "./workspace/WorkspaceList";
 import { ArrowRight, Box, ChevronRight, Layers3, Sparkles, WandSparkles } from "lucide-react";
 import { supabase } from "./lib/supabase";
 
@@ -24,7 +25,7 @@ export default function App() {
   const [authOpen,setAuthOpen]=useState(false);
   const [session,setSession]=useState<any>(null);
   const [checking,setChecking]=useState(true);
-  const [workspaceView,setWorkspaceView]=useState<"dashboard"|"create"|"studio"|"assets"|"materials"|"characters"|"developer">("dashboard");
+  const [workspaceView,setWorkspaceView]=useState<"dashboard"|"projects"|"generations"|"create"|"studio"|"assets"|"materials"|"characters"|"developer">("dashboard");
   const [studioAssetUrl,setStudioAssetUrl]=useState("");
 
   useEffect(()=>{
@@ -36,13 +37,15 @@ export default function App() {
 
   if (checking) return <main className="app-shell auth-loading"><div className="eyebrow"><Sparkles size={15}/> LOADING WORKSPACE</div></main>;
   if (session?.user) {
+ if (workspaceView==="projects") return <WorkspaceList kind="projects" onBack={()=>setWorkspaceView("dashboard")} onCreate={()=>setWorkspaceView("dashboard")} />;
+ if (workspaceView==="generations") return <WorkspaceList kind="generations" onBack={()=>setWorkspaceView("dashboard")} onCreate={()=>setWorkspaceView("create")} />;
  if (workspaceView==="create") return <CreationCenter onBack={()=>setWorkspaceView("dashboard")} />;
  if (workspaceView==="studio") return <Studio initialAssetUrl={studioAssetUrl} onBack={()=>setWorkspaceView("dashboard")} />;
  if (workspaceView==="assets") return <AssetLibrary onOpenStudio={(url)=>{setStudioAssetUrl(url||"");setWorkspaceView("studio");}} />;
  if (workspaceView==="materials") return <MaterialsCenter onBack={()=>setWorkspaceView("dashboard")} />;
  if (workspaceView==="characters") return <CharacterLab onBack={()=>setWorkspaceView("dashboard")} />;
  if (workspaceView==="developer") return <DeveloperPlatform />;
- return <Dashboard user={session.user} onSignOut={async()=>{if(supabase) await supabase.auth.signOut();}} onCreate={()=>setWorkspaceView("create")} onStudio={()=>setWorkspaceView("studio")} onAssets={()=>setWorkspaceView("assets")} onMaterials={()=>setWorkspaceView("materials")} onCharacters={()=>setWorkspaceView("characters")} onDeveloper={()=>setWorkspaceView("developer")} />;
+ return <Dashboard user={session.user} onSignOut={async()=>{if(supabase) await supabase.auth.signOut();}} onCreate={()=>setWorkspaceView("create")} onProjects={()=>setWorkspaceView("projects")} onGenerations={()=>setWorkspaceView("generations")} onStudio={()=>setWorkspaceView("studio")} onAssets={()=>setWorkspaceView("assets")} onMaterials={()=>setWorkspaceView("materials")} onCharacters={()=>setWorkspaceView("characters")} onDeveloper={()=>setWorkspaceView("developer")} />;
 }
 
   return <main className="app-shell">
