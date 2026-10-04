@@ -13,10 +13,11 @@ function Model({url}:{url:string}) {
 function DemoObject() {
   return <mesh rotation={[0.25,0.4,0]}><icosahedronGeometry args={[1.35,2]}/><meshStandardMaterial metalness={0.65} roughness={0.28}/></mesh>;
 }
-export function Studio({onBack}:{onBack:()=>void}) {
- const [assetUrl,setAssetUrl]=useState("");
+export function Studio({onBack,initialAssetUrl}:{onBack:()=>void;initialAssetUrl?:string}) {
+ const [assetUrl,setAssetUrl]=useState(initialAssetUrl||"");
  const [mode,setMode]=useState("select");
  const [projects,setProjects]=useState<any[]>([]); const [projectId,setProjectId]=useState(""); const [sceneId,setSceneId]=useState(""); const [sceneName,setSceneName]=useState("Untitled Scene"); const [saving,setSaving]=useState(false); const [saved,setSaved]=useState(""); const [assistantOpen,setAssistantOpen]=useState(false);
+ useEffect(()=>{if(initialAssetUrl)setAssetUrl(initialAssetUrl)},[initialAssetUrl]);
  useEffect(()=>{listProjects().then((p)=>{setProjects(p as any[]);if(p?.[0])setProjectId(p[0].id)}).catch(()=>{});},[]);
  async function saveScene(){if(!supabase||!projectId)return;setSaving(true);setSaved("");try{let id=sceneId;if(!id){const{data,error}=await supabase.from("omniforge_scenes").insert({user_id:(await supabase.auth.getUser()).data.user?.id,project_id:projectId,name:sceneName,scene_data:{assetUrl,mode}}).select("id").single();if(error)throw error;id=data.id;setSceneId(id)}else{const{error}=await supabase.from("omniforge_scenes").update({project_id:projectId,name:sceneName,scene_data:{assetUrl,mode},updated_at:new Date().toISOString()}).eq("id",id);if(error)throw error}setSaved("Scene saved");}catch(e:any){setSaved(e?.message||"Save failed")}finally{setSaving(false)}}
  return <div className="studio-workspace">
