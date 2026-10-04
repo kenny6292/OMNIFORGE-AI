@@ -22,6 +22,45 @@ Deno.serve(async(req)=>{
   if(action==="retexture-status"){
    const generationId=String(body.generationId||"");const {data:g,error}=await supabase.from("omniforge_generations").select("*").eq("id",generationId).eq("user_id",user.id).single();if(error||!g)return json({error:"Generation not found"},404);const params=g.parameters||{},taskId=params.provider_task_id;if(!taskId)return json({status:g.status,generationId});const r=await fetch("https://api.meshy.ai/openapi/v1/retexture/"+taskId,{headers:headers(key)}),task=await r.json();if(!r.ok)return json({error:task?.message||"Meshy status request failed."},502);if(task.status==="FAILED"){await supabase.from("omniforge_generations").update({status:"failed",error_message:task.task_error?.message||"Texture generation failed."}).eq("id",g.id);return json({status:"failed",generationId});}if(task.status==="SUCCEEDED"){const urls=task.model_urls||{},sourceUrl=urls.glb||urls.fbx||urls.obj||null;const {data:asset,error:ae}=await supabase.from("omniforge_assets").insert({user_id:user.id,project_id:g.project_id,name:"Textured · "+g.prompt.slice(0,65),asset_type:"Textured 3D Model",status:"ready",source_url:sourceUrl,metadata:{provider:"meshy",task_id:task.id,thumbnail_url:task.thumbnail_url||null,model_urls:urls,source_asset_id:params.source_asset_id}}).select().single();if(ae)return json({error:ae.message},500);await supabase.from("omniforge_generations").update({status:"completed",result_asset_id:asset.id,completed_at:new Date().toISOString()}).eq("id",g.id);return json({status:"completed",generationId,asset});}return json({status:"processing",generationId,providerStatus:task.status,progress:task.progress??0});
   }
+  if(action==="character"){ action="create"; body.generationType="Character"; }
+  if(action==="character-status"){ action="status"; }
+  if(action==="rig-animate"){
+   const assetId=String(body.assetId||""), preset=String(body.preset||"Walking");
+   const actionIds={Idle:0,Walking:30,Running:14,Jumping:13,Waving:28,Attacking:4,Dancing:22};
+   const {data:asset,error:ae}=await supabase.from("omniforge_assets").select("*").eq("id",assetId).eq("user_id",user.id).single();
+   if(ae||!asset)return json({error:"Character asset not found."},404);
+   let modelUrl=asset.source_url||null;
+   if(asset.storage_path){const signed=await supabase.storage.from("omniforge-assets").createSignedUrl(asset.storage_path,3600);if(signed.error)return json({error:signed.error.message},400);modelUrl=signed.data.signedUrl;}
+   if(!modelUrl)return json({error:"This asset has no usable model URL."},400);
+   const {data:g,error:ie}=await supabase.from("omniforge_generations").insert({user_id:user.id,project_id:asset.project_id||null,prompt:"Rig and animate "+asset.name,generation_type:"Animation",provider:"meshy",model:"latest",status:"processing",parameters:{phase:"rig",source_asset_id:asset.id,preset,action_id:actionIds[preset]??30}}).select().single();if(ie)return json({error:ie.message},400);
+   const r=await fetch("https://api.meshy.ai/openapi/v1/rigging",{method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model_url:modelUrl})}),result=await r.json();
+   if(!r.ok){await supabase.from("omniforge_generations").update({status:"failed",error_message:result?.message||"Meshy rigging task failed."}).eq("id",g.id);return json({error:result?.message||"Rigging failed.",generationId:g.id},502);}
+   await supabase.from("omniforge_generations").update({parameters:{phase:"rig",source_asset_id:asset.id,preset,action_id:actionIds[preset]??30,provider_task_id:result.result}}).eq("id",g.id);
+   return json({generationId:g.id,providerTaskId:result.result,status:"processing"});
+  }
+  if(action==="rig-animate-status"){
+   const generationId=String(body.generationId||"");const {data:g,error}=await supabase.from("omniforge_generations").select("*").eq("id",generationId).eq("user_id",user.id).single();if(error||!g)return json({error:"Generation not found"},404);
+   const p=g.parameters||{},phase=p.phase||"rig",taskId=p.provider_task_id;if(!taskId)return json({status:g.status,generationId});
+   if(phase==="rig"){
+    const r=await fetch("https://api.meshy.ai/openapi/v1/rigging/"+taskId,{headers:headers(key)}),task=await r.json();if(!r.ok)return json({error:task?.message||"Rigging status failed."},502);
+    if(task.status==="FAILED"){await supabase.from("omniforge_generations").update({status:"failed",error_message:task.task_error?.message||"Rigging failed."}).eq("id",g.id);return json({status:"failed",generationId});}
+    if(task.status==="SUCCEEDED"){
+      const ar=await fetch("https://api.meshy.ai/openapi/v1/animations",{method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({rig_task_id:task.id,action_id:Number(p.action_id??30)})}),a=await ar.json();
+      if(!ar.ok){await supabase.from("omniforge_generations").update({status:"failed",error_message:a?.message||"Animation task failed."}).eq("id",g.id);return json({error:a?.message||"Animation failed."},502);}
+      await supabase.from("omniforge_generations").update({parameters:{...p,phase:"animation",rig_task_id:task.id,provider_task_id:a.result}}).eq("id",g.id);
+      return json({status:"processing",phase:"animation",generationId});
+    }
+    return json({status:"processing",phase:"rig",generationId,providerStatus:task.status,progress:task.progress??0});
+   }
+   const r=await fetch("https://api.meshy.ai/openapi/v1/animations/"+taskId,{headers:headers(key)}),task=await r.json();if(!r.ok)return json({error:task?.message||"Animation status failed."},502);
+   if(task.status==="FAILED"){await supabase.from("omniforge_generations").update({status:"failed",error_message:task.task_error?.message||"Animation failed."}).eq("id",g.id);return json({status:"failed",generationId});}
+   if(task.status==="SUCCEEDED"){
+    const sourceUrl=task.animation_glb_url||task.animation_fbx_url||null;
+    const {data:asset,error:ae}=await supabase.from("omniforge_assets").insert({user_id:user.id,project_id:g.project_id,name:"Animated · "+g.prompt.replace(/^Rig and animate /,"").slice(0,60),asset_type:"Animation",status:"ready",source_url:sourceUrl,metadata:{provider:"meshy",task_id:task.id,rig_task_id:p.rig_task_id,preset:p.preset,animation_glb_url:task.animation_glb_url||null,animation_fbx_url:task.animation_fbx_url||null}}).select().single();
+    if(ae)return json({error:ae.message},500);await supabase.from("omniforge_generations").update({status:"completed",result_asset_id:asset.id,completed_at:new Date().toISOString()}).eq("id",g.id);return json({status:"completed",generationId,asset});
+   }
+   return json({status:"processing",phase:"animation",generationId,providerStatus:task.status,progress:task.progress??0});
+  }
   if(action==="create"){
    const prompt=String(body.prompt||"").trim(); if(!prompt||prompt.length>800)return json({error:"Prompt is required and must be 800 characters or less."},400);
    const params=body.parameters||{}, generationType=String(body.generationType||"3D Model");
