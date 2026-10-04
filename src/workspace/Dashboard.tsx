@@ -5,7 +5,7 @@ import { createProject, listProjects } from "../lib/omniforge-db";
 
 type Project = { id:string; name:string; description:string; project_type:string; status:string; updated_at:string };
 
-export function Dashboard({ user, onSignOut, onCreate, onStudio, onAssets, onMaterials, onCharacters, onDeveloper }: { user:any; onSignOut:()=>Promise<void>; onCreate:()=>void; onStudio:()=>void; onAssets:()=>void; onMaterials:()=>void; onCharacters:()=>void; onDeveloper:()=>void }) {
+export function Dashboard({ user, onSignOut, onCreate, onProjects, onGenerations, onStudio, onAssets, onMaterials, onCharacters, onDeveloper }: { user:any; onSignOut:()=>Promise<void>; onCreate:()=>void; onProjects:()=>void; onGenerations:()=>void; onStudio:()=>void; onAssets:()=>void; onMaterials:()=>void; onCharacters:()=>void; onDeveloper:()=>void }) {
   const [projects,setProjects]=useState<Project[]>([]);
   const [assetCount,setAssetCount]=useState(0);
   const [generationCount,setGenerationCount]=useState(0);
@@ -57,9 +57,9 @@ export function Dashboard({ user, onSignOut, onCreate, onStudio, onAssets, onMat
       <button className="workspace-brand"><span className="brand-mark"><Box size={17}/></span>OMNIFORGE <span>AI</span></button>
       <div className="workspace-nav">
         <button className="active"><Sparkles size={16}/>Overview</button>
-        <button><FolderKanban size={16}/>Projects</button>
+        <button onClick={onProjects}><FolderKanban size={16}/>Projects</button>
         <button onClick={onAssets}><Box size={16}/>Assets</button>
-        <button><WandSparkles size={16}/>Generations</button>
+        <button onClick={onGenerations}><WandSparkles size={16}/>Generations</button>
         <button onClick={onStudio}><Layers3 size={16}/>Studio</button><button onClick={onDeveloper}><KeyRound size={16}/>Developer</button><button onClick={onMaterials}><Sparkles size={16}/>Materials</button><button onClick={onCharacters}><WandSparkles size={16}/>Characters</button>
       </div>
       <div className="workspace-user">
