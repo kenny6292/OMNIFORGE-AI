@@ -8,6 +8,7 @@ import { MaterialsCenter } from "./workspace/MaterialsCenter";
 import { CharacterLab } from "./workspace/CharacterLab";
 import { DeveloperPlatform } from "./workspace/DeveloperPlatform";
 import { WorkspaceList } from "./workspace/WorkspaceList";
+import { WorkspaceList } from "./workspace/WorkspaceList";
 import { ArrowRight, Box, ChevronRight, Layers3, Sparkles, WandSparkles } from "lucide-react";
 import { supabase } from "./lib/supabase";
 
@@ -37,6 +38,8 @@ export default function App() {
 
   if (checking) return <main className="app-shell auth-loading"><div className="eyebrow"><Sparkles size={15}/> LOADING WORKSPACE</div></main>;
   if (session?.user) {
+ if (workspaceView==="projects") return <WorkspaceList kind="projects" onBack={()=>setWorkspaceView("dashboard")} onCreate={()=>setWorkspaceView("dashboard")} />;
+ if (workspaceView==="generations") return <WorkspaceList kind="generations" onBack={()=>setWorkspaceView("dashboard")} onCreate={()=>setWorkspaceView("create")} />;
  if (workspaceView==="projects") return <WorkspaceList kind="projects" onBack={()=>setWorkspaceView("dashboard")} onCreate={()=>setWorkspaceView("dashboard")} />;
  if (workspaceView==="generations") return <WorkspaceList kind="generations" onBack={()=>setWorkspaceView("dashboard")} onCreate={()=>setWorkspaceView("create")} />;
  if (workspaceView==="create") return <CreationCenter onBack={()=>setWorkspaceView("dashboard")} />;
